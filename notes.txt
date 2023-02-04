@@ -1,0 +1,47 @@
+Technical notes for V-Cruise file formats:
+
+==== Anims directory ====
+*.avi: AVI video
+
+*.dta: Unknown, binary
+	Seems to contain header section followed by 16-byte datas
+
+*.ta1: Unknown, text
+
+*.tab: Unknown, text
+
+*.morph: Unknown, binary (Schizm only)
+
+==== Dta directory ====
+*.dta: Unknown, binary (Reah only)
+	Possibly same format as Anims directory (might be unused duplicates)
+
+*.2dt: Unknown, binary
+	Data appears aligned in fixed-size 16-byte chunks
+
+*.2tx: Unknown, text
+
+==== Gfx directory ====
+*.avi: Not actual AVI files, only contain single null byte
+
+*.bmp: BMP images, unless they contain only a single null byte.  Language-specific UI files are separated by 100 in number.
+
+==== Log directory ====
+Dubbing.txt: Unknown, text
+
+Index.txt: Unknown, text
+
+*.log: Scripts, text, obfuscated using stream cipher
+
+Speech*.txt: Subtitles, text
+
+==== Map directory ====
+*.map: Unknown, binary
+
+
+==== Sfx directory ====
+Waves-*\*.wav: WAV audio, binary
+	Sound effects, VO
+
+*.sfx: Unknown, text
+	Sound effect mapping data
