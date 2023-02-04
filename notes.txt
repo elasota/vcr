@@ -1,14 +1,47 @@
 Technical notes for V-Cruise file formats:
 
+==== Polish-English vocabulary ====
+???
+PRZOD = front
+OP (obróć w prawo?) = rotate right
+OL (obrót w lewo?) = rotate left
+SG (spojrzeć w górę?) = look up
+GS (???) = look down?
+
+PUSTYNIA = desert
+MOST = bridge
+BRAMA = gate
+MUR = wall
+SZTABA = bar
+Dzwony = bells
+
 ==== Anims directory ====
 *.avi: AVI video
 
-*.dta: Unknown, binary
-	Seems to contain header section followed by 16-byte datas
+*.txt: Animation metadata.  Format is significantly different between Reah and Schizm.  Might only be for export.
+	Reah:
+		First column is room number, second may be negative room number.  Negative room numbers lead to reversed animations.
+		Next 2 columns are area frame ranges
+		Next 2 columns are animation names to export
+	
 
-*.ta1: Unknown, text
+*.dta: Unknown, binary
+	Seems to contain 2048 byte header section followed by 16-byte datas
+	Data format seems to be:
+		uint8: frame type.  In Schizm this is always 1.
+			0x01: Keyframe
+			0x02: Middle frame
+			0x41: Last frame of animation
+		uint24: frame index
+		int8: room number or negative room number
+		char[4]: area ID
+		char[4]: decimal frame index in area
+
+*.ta1: Animation name to frame range map, text
+	Ranges are inclusive
 
 *.tab: Unknown, text
+	Appears to store consecutive ranges of room number values
 
 *.morph: Unknown, binary (Schizm only)
 
@@ -16,10 +49,15 @@ Technical notes for V-Cruise file formats:
 *.dta: Unknown, binary (Reah only)
 	Possibly same format as Anims directory (might be unused duplicates)
 
-*.2dt: Unknown, binary
-	Data appears aligned in fixed-size 16-byte chunks
+*.2dt: Frame positioning data
+	16-byte blocks, one for each frame, format is:
+		int32: x
+		int32: y
+		int32: z
+		uint32: frame number in area
 
-*.2tx: Unknown, text
+*.2tx: Frame positioning data for areas, text
+
 
 ==== Gfx directory ====
 *.avi: Not actual AVI files, only contain single null byte
@@ -36,7 +74,17 @@ Index.txt: Unknown, text
 Speech*.txt: Subtitles, text
 
 ==== Map directory ====
-*.map: Unknown, binary
+*.map: Interactions map, binary
+	First 16 bytes are header
+	After that are 96*8 offsets, corresponding to 96 screens with 8 directions each.  The file offset for a screen-direction is 16+(8*screen+direction)*4
+	At the specified offset is another 16-byte header.  If the first value is non-zero, then there are that many additional 12-byte data blocks for interactions.
+	The interaction format appears to be:
+		int16 top
+		int16 left
+		int16 bottom
+		int16 right
+		int16 interaction ID
+		int16 object type
 
 
 ==== Sfx directory ====
@@ -45,3 +93,43 @@ Waves-*\*.wav: WAV audio, binary
 
 *.sfx: Unknown, text
 	Sound effect mapping data
+
+
+==== Log scripting language ====
+Appears to be stack-based
+
+; - Comment until EOL
+
+:Y:<identifier> - ??? Pushes variable?
+:<identifier> - Pushes animation identifier
+<left animation> <right animation> rotate - Permits rotation via two translation animations
+<animation> static - Scene is static and plays a fixed animation
+0<number> - Pushes a hexadecimal number
+d<number> - Pushes a decimal number
+<range> rnd - Pushes a random number from 0 to range (??? exclusively?)
+<value> dup	- Duplicates the value at the top of the stack
+<value> drop - Does nothing (discards the value at the top of the stack)
+<a> <b>	= Pushes true if a == b otherwise pushes false
+<cond> #if - If cond is false, ignores tokens until #eif or #else
+#else - If executed, ignores tokens until #eif
+#eif - Terminates if/else block
+<variable> yes@ - Loads a variable and pushes its value
+<value> <variable> yes! - Sets a variable to a value
+lmb - Halts execution until left mouse button is pressed
+lmbl - ???
+<value> #switch: - Searches for a corresponding case or #eswitch
+#case: <value> - Resumes execution if the switched value matches the case
+break - Skips execution to the next #eswitch
+#eswitch - Terminates switch block
+bit1! - ??? possibly sets a bit to 1
+bit@ - ??? possibly reads a bit
+say3 - ??? possibly plays a VO line
+speed - ???
+animR - ???
+cursor! - ???
+changeL - ???
+<anim> <screen> <???> <???> animF - ??? transitions to another screen?  Possibly also specifies rotation index.
+:MOST_L0 <???> <???> sanimL
+<anim> <screen> <???> anim - ??? transitions to another screen?
+parmG - ???
+disc<n> - Requires change to a specified disc
