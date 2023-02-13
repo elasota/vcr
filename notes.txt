@@ -100,7 +100,7 @@ Appears to be stack-based
 
 ; - Comment until EOL
 
-:Y:<identifier> - ??? Pushes variable?
+:Y:<identifier> - Pushes the slot ID of a variable
 :<identifier> - Pushes animation identifier
 <left animation> <right animation> rotate - Permits rotation via two translation animations
 <animation> static - Scene is static and plays a fixed animation
@@ -115,8 +115,8 @@ d<number> - Pushes a decimal number
 #eif - Terminates if/else block
 <variable> yes@ - Loads a variable and pushes its value
 <value> <variable> yes! - Sets a variable to a value
-lmb - Halts execution until left mouse button is pressed
-lmbl - ???
+lmb - Terminates the script if it wasn't activated by a LMB press
+lmb1 - ???
 <value> #switch: - Searches for a corresponding case or #eswitch
 #case: <value> - Resumes execution if the switched value matches the case
 break - Skips execution to the next #eswitch
@@ -125,11 +125,26 @@ bit1! - ??? possibly sets a bit to 1
 bit@ - ??? possibly reads a bit
 say3 - ??? possibly plays a VO line
 speed - ???
-animR - ???
-cursor! - ???
+animR - Plays rotation animation (corresponding to the rotation direction for the interaction ID)
+<screen> <direction> animS - decode a single frame from an animation and transitions to another screen
+cursor! - Changes the cursor
 changeL - ???
 <anim> <screen> <???> <???> animF - ??? transitions to another screen?  Possibly also specifies rotation index.
 :MOST_L0 <???> <???> sanimL
 <anim> <screen> <???> anim - ??? transitions to another screen?
 parmG - ???
-disc<n> - Requires change to a specified disc
+<???> disc1 - ??? Used in multiple places, pushes a boolean
+<???> <???> disc2 - ??? Only used in Room 11 in Reah
+<???> <???> <???> disc3 - ???
+DEC - Changes number parsing mode to decimal
+HEX - Changes number parsing mode to hexadecimal
+~ROOM <number> - Starts defining room
+~SCR <number> - Starts defining a screen
+~* <number> - Starts defining an interaction
+	Area interactions start at 0a0 (decimal 160)
+	Interactions 1, 2, 3, and 4 seem to be rotation interactions
+<number> room! - Sets the room number.
+	Importantly, this doesn't activate any screen in that room, some scripts set a room number, assign to a variable in that room, then change the room number back.
+	To activate a screen, an op that causes a screen transition must be executed.
+<sound ID> <duration> <new volume> <stop> volumeDn4
+	Gradually reduces the volume of a sound.  Duration is in 10ths of a second.  If stop flag is set, then sound is stopped when volume transition completes.
